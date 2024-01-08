@@ -18,19 +18,51 @@ const path = require("path");
 
 const server = http
   .createServer((req, res) => {
-    fs.readFile(path.join(__dirname, "/public", "about.html"), (err, data) => {
+    let url = req.url === "/" ? "/index.html" : req.url;
+    console.log(url);
+
+    const fileName = path.join(__dirname, "/public", url);
+
+    const fileExt = path.extname(fileName);
+
+    console.log(fileExt);
+
+    let contentType;
+    if (fileExt === ".html") {
+      contentType = "text/html";
+    } else if (fileExt === ".css") {
+      contentType = "text/css";
+    } else if (fileExt === ".js") {
+      contentType = "text/js";
+    } else if (fileExt === ".ico") {
+      contentType = "image/vnd.microsoft.icon";
+    }
+
+    fs.readFile(fileName, "utf8", (err, data) => {
+      // In case of error
       if (err) {
-        throw err;
+        console.log("does this run");
+        fs.readFile(
+          path.join(__dirname, "/public", "/404.html"),
+          "utf8",
+          (err, data) => {
+            if (err) {
+              console.log("404 err");
+              throw err;
+            }
+
+            res.writeHead(200, { "Content-Type": "text/html" });
+            res.write(data);
+            return res.end();
+          }
+        );
+
+        return;
       }
 
+      res.writeHead(200, { "Content-Type": contentType });
       res.write(data);
       return res.end();
     });
-
-    console.log(req);
-    // console.log("after req");
-
-    const url = req.url;
-    console.log(url);
   })
   .listen(5000, () => console.log("Server running..."));
