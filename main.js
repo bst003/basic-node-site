@@ -24,12 +24,14 @@ const server = http
     fs.readFile(fileName, "utf8", (err, data) => {
       // In case of error
       if (err) {
+        console.log("err: " + err.code);
+
         fs.readFile(
           path.join(__dirname, "/public", "/404.html"),
           "utf8",
           (err, data) => {
             if (err) {
-              console.log("404 err");
+              console.log(err);
               throw err;
             }
 
